@@ -37,5 +37,7 @@ if __name__ == '__main__':
             sys.stderr.write('error reading input')
         outstr = parse_command(instr, bot, pos)
         sys.stdout.write(outstr)
-        sys.stdout.flush()            
+        sys.stdout.flush()
+
+
             
