@@ -2,6 +2,7 @@ from random import randint
 from copy import deepcopy
 from NN.neural_net import NeuralNet
 import os.path
+import sys
 
 class RandomBot:
 
@@ -9,25 +10,30 @@ class RandomBot:
     structure = {"num_inputs": 81, 'num_hidden': 1, 'num_outputs': 1}
     learning_rate = .2
     NN = NeuralNet(structure, learning_rate)
-    
+
     def get_move(self, pos, left):
         lmoves = pos.legal_moves()
         max_score = 0
+        sys.stderr.write('HELLO\n')
         for move in lmoves:
+
             new_pos = deepcopy(pos)
-            x = move / 9 #Backwards ???
-            y = move % 9
+
+            x = lmoves[0]
+            y = lmoves[1]
+
             new_pos.make_move(x, y, self.myid)
+
             new_score = NeuralNet.forward_propogate(new_pos)
             if new_score > max_score:
                 max_score = new_score
-                best_move = move
+                best_move = (x, y)
                 best_pos = new_pos
 
         self.states.append((deepcopy(pos), self.myid))
         self.states.append((deepcopy(best_pos), self.myid % 2 + 1))
 
-        return (x, y)
+        return best_move
 
     def save_data(self):
         # Write data to disk
