@@ -1,6 +1,7 @@
 from random import randint
 from copy import deepcopy
-from neural_net import NeuralNet
+from NN.neural_net import NeuralNet
+import os.path
 
 class RandomBot:
 
@@ -27,3 +28,32 @@ class RandomBot:
         self.states.append((deepcopy(best_pos), self.myid % 2 + 1))
 
         return (x, y)
+
+    def save_data(self):
+        # Write data to disk
+        with open("inputs", "w") as f:
+            f.write(repr(self.states))
+
+    def __init__(self):
+        if not os.path.isfile("weights"):
+            return
+        # Read current weights
+        with open("weights") as f:
+            data = eval(f.read())
+        self.NN.weightsList1 = data[0]
+        self.NN.weightsList2 = data[1]
+        self.train()
+
+    def train(self):
+        if not os.path.isfile("inputs"):
+            return
+        return
+        # Read training data
+        with open("inputs") as f:
+            inputs = eval(f.read())
+        with open("winnerId") as f:
+            winner = eval(f.read())
+        self.NN.train(inputs, [winner]*len(inputs))
+        weights = (self.NN.weightsList1, self.NN.weightsList2)
+        with open("weights", "w") as f:
+            f.write(repr(weights))
