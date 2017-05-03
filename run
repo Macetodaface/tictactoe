@@ -1,1 +1,3 @@
+cp weights weights2
 java -cp bin com.theaigames.tictactoe.Tictactoe "python main.py" "python main.py -nolog"
+
