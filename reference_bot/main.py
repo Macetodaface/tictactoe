@@ -28,12 +28,8 @@ if __name__ == '__main__':
     from randombot import RandomBot
 
     pos = Position()
-    args = sys.argv
-    if len(args)>1 and args[1]=="-nolog":
-        bot=RandomBot(log_data=False)
-    else:
-        bot=RandomBot()
-
+    bot = RandomBot()
+    
     while True:
         try:
             instr = raw_input()
@@ -41,7 +37,5 @@ if __name__ == '__main__':
             sys.stderr.write('error reading input')
         outstr = parse_command(instr, bot, pos)
         sys.stdout.write(outstr)
-        sys.stdout.flush()
-
-
+        sys.stdout.flush()            
             
