@@ -22,6 +22,8 @@ class Position:
         
     def make_move(self, x, y, pid):
         mbx, mby = x/3, y/3
+        if (self.macroboard[3*mby+mbx]) == 0:
+            self.macroboard = [0 if n == -1 else -1 for n in self.macroboard]
         self.macroboard[3*mby+mbx] = -1
         self.board[9*y+x] = pid
         

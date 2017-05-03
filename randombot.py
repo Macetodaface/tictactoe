@@ -10,7 +10,7 @@ class RandomBot:
     boards = []
     opp_boards = []
     structure = {"num_inputs": 90, 'num_hidden': 10, 'num_outputs': 1}
-    learning_rate = .2
+    learning_rate = 1
     NN = NeuralNet(structure, learning_rate)
 
     def get_move(self, pos, left):
