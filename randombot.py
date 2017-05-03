@@ -16,12 +16,9 @@ class RandomBot:
     def get_move(self, pos, left):
         lmoves = pos.legal_moves()
         max_score = 0
-        for move in lmoves:
+        for (x, y) in lmoves:
 
             new_pos = deepcopy(pos)
-
-            x = lmoves[0][0]
-            y = lmoves[0][1]
 
             new_pos.make_move(x, y, self.myid)
 
