@@ -3,10 +3,14 @@ from copy import deepcopy
 from NN.neural_net import NeuralNet
 import os.path
 import sys
+import numpy as np
 
 class RandomBot:
 
-    states = []
+    boards = []
+    opp_boards = []
+    macroboards = []
+    opp_macroboards = []
     structure = {"num_inputs": 81, 'num_hidden': 1, 'num_outputs': 1}
     learning_rate = .2
     NN = NeuralNet(structure, learning_rate)
@@ -14,52 +18,58 @@ class RandomBot:
     def get_move(self, pos, left):
         lmoves = pos.legal_moves()
         max_score = 0
-        sys.stderr.write('HELLO\n')
         for move in lmoves:
 
             new_pos = deepcopy(pos)
 
-            x = lmoves[0]
-            y = lmoves[1]
+            x = lmoves[0][0]
+            y = lmoves[0][1]
 
             new_pos.make_move(x, y, self.myid)
 
-            new_score = NeuralNet.forward_propogate(new_pos)
+            new_score = self.NN.forward_propagate(new_pos.macroboard)
             if new_score > max_score:
                 max_score = new_score
                 best_move = (x, y)
                 best_pos = new_pos
 
-        self.states.append((deepcopy(pos), self.myid))
-        self.states.append((deepcopy(best_pos), self.myid % 2 + 1))
-
+        self.boards.append(deepcopy(pos.board))
+        self.macroboards.append(deepcopy(pos.macroboard))
+        self.opp_boards.append(deepcopy(best_pos.board))
+        self.opp_macroboards.append(deepcopy(best_pos.macroboard))
+        self.save_data()
         return best_move
 
     def save_data(self):
         # Write data to disk
-        with open("inputs", "w") as f:
-            f.write(repr(self.states))
+        with open("boards", "w") as f:
+            f.write(repr(self.boards))
+        #print("Saving states ...")
 
     def __init__(self):
-        if not os.path.isfile("weights"):
-            return
         # Read current weights
-        with open("weights") as f:
-            data = eval(f.read())
-        self.NN.weightsList1 = data[0]
-        self.NN.weightsList2 = data[1]
         self.train()
 
     def train(self):
-        if not os.path.isfile("inputs"):
+        if not os.path.isfile("boards"):
+            print("No previous game found")
             return
-        return
+        if os.path.isfile("weights"):
+            print("Got weights from disk")
+            with open("weights") as f:
+                data = eval(f.read())
+            self.NN.weightsList1 = np.array(data[0])
+            self.NN.weightsList2 = np.array(data[1])
+        print("Training NN ...")
         # Read training data
-        with open("inputs") as f:
+        with open("boards") as f:
             inputs = eval(f.read())
-        with open("winnerId") as f:
-            winner = eval(f.read())
-        self.NN.train(inputs, [winner]*len(inputs))
-        weights = (self.NN.weightsList1, self.NN.weightsList2)
+        with open("winner.txt") as f:
+            winner = f.read()
+        output = 1 if winner is "player1" else 0
+        labeled_data = zip(np.array(inputs), np.array([output]))
+        weights = (self.NN.weightsList1.tolist(),
+                   self.NN.weightsList2.tolist())
         with open("weights", "w") as f:
             f.write(repr(weights))
+            print("Recorded new weights")
