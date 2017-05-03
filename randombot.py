@@ -27,7 +27,7 @@ class RandomBot:
 
             new_pos.make_move(x, y, self.myid)
 
-            new_score = self.NN.forward_propagate(new_pos.macroboard)
+            new_score = self.NN.forward_propagate(new_pos.board)
             if new_score > max_score:
                 max_score = new_score
                 best_move = (x, y)
@@ -71,7 +71,7 @@ class RandomBot:
             inputs = eval(f.read())
         with open("winner.txt") as f:
             winner = f.read()
-        output = 1 if winner is "player1" else 0
+        output = 0 if winner is "player1" else 1
 
         iters = 100
         self.NN.train(np.array(inputs),
