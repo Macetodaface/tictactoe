@@ -67,8 +67,14 @@ class RandomBot:
             inputs = eval(f.read())
         with open("winner.txt") as f:
             winner = f.read()
-        output = 0 if winner is "player1" else 1
+        print("winner was")
+        print(winner)
+        if winner == "nobody":
+            print("last game tied")
+            return
 
+        output = 0 if winner == "player1" else 1
+        print(output)
         iters = 100
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
