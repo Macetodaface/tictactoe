@@ -1,8 +1,7 @@
 for((i=0;i<$1; ++i))
 do
-	echo $(./run | grep 'player')
+	echo $(./run | grep -E '(tie|player)')
 	#if [[$(./run | grep 'player') = "winner: player1"]]; then
 	#	echo "our bot won!"
 	#fi
-	sleep 3;
 done
