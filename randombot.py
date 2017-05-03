@@ -73,14 +73,15 @@ class RandomBot:
             winner = f.read()
         output = 1 if winner is "player1" else 0
         self.NN.train(np.array(inputs),
-                      np.array([output]*len(inputs)))
+                      np.array([[output]]*len(inputs)))
         output = (output + 1) % 2
 
         # Train on p2's boards
         with open("opp_boards") as f:
             inputs = eval(f.read())
         self.NN.train(np.array(inputs),
-                      np.array([output]*len(inputs)))
+                      np.array([[output]]*len(inputs)),
+                      iterations = 100)
         weights = (self.NN.weightsList1.tolist(),
                    self.NN.weightsList2.tolist())
 
