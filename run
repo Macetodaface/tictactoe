@@ -1,3 +1,3 @@
-cp weights weights2
+cp weights weights2 > foo.txt
 java -cp bin com.theaigames.tictactoe.Tictactoe "python main.py" "python main.py -nolog"
 

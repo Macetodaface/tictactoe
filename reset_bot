@@ -1,4 +1,4 @@
-rm boards
-rm winner.txt
-rm weights
-rm opp_boards
+rm boards > foo.txt
+rm winner.txt >foo.txt
+rm weights >foo.txt
+rm opp_boards > foo.txt
