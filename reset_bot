@@ -1,3 +1,4 @@
 rm boards
 rm winner.txt
 rm weights
+rm opp_boards

@@ -9,9 +9,7 @@ class RandomBot:
 
     boards = []
     opp_boards = []
-    macroboards = []
-    opp_macroboards = []
-    structure = {"num_inputs": 81, 'num_hidden': 1, 'num_outputs': 1}
+    structure = {"num_inputs": 90, 'num_hidden': 1, 'num_outputs': 1}
     learning_rate = .2
     NN = NeuralNet(structure, learning_rate)
 
@@ -33,12 +31,9 @@ class RandomBot:
                 best_move = (x, y)
                 best_pos = new_pos
 
-        self.boards.append(deepcopy(pos.board))
-        self.macroboards.append(deepcopy(pos.macroboard))
-        self.opp_boards.append(deepcopy(best_pos.board))
-        self.opp_macroboards.append(deepcopy(best_pos.macroboard))
-        if(self.log_data):
-            print("logging")
+        self.boards.append(pos.board + pos.macroboard)
+        self.opp_boards.append(deepcopy(best_pos.board + best_pos.macroboard))
+        if self.log_data:
             self.save_data()
         return best_move
 
@@ -48,11 +43,12 @@ class RandomBot:
             f.write(repr(self.boards))
         with open("opp_boards", "w") as f:
             f.write(repr(self.opp_boards))
-        #print("Saving states ...")
 
-    def __init__(self,log_data=True):
-        self.log_data=log_data
-        # Get preexisting weights
+    def __init__(self, log_data=True):
+        self.log_data = log_data
+        if log_data:
+            print("Data will be saved")
+        # Get preexisting weight
         if os.path.isfile("weights"):
             print("Got weights from disk")
             with open("weights") as f:
@@ -79,19 +75,19 @@ class RandomBot:
         iters = 100
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
-                      iterations = iters)
-        output = (output + 1) % 2
+                      iterations=iters)
 
         # Train on p2's boards
+        output = (output + 1) % 2
         with open("opp_boards") as f:
             inputs = eval(f.read())
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
-                      iterations = iters)
+                      iterations=iters)
         weights = (self.NN.weightsList1.tolist(),
                    self.NN.weightsList2.tolist())
 
-        #Record new weights
+        # Record new weights
         with open("weights", "w") as f:
             f.write(repr(weights))
             print("Recorded new weights")
