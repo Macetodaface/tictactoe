@@ -44,32 +44,47 @@ class RandomBot:
         # Write data to disk
         with open("boards", "w") as f:
             f.write(repr(self.boards))
+        with open("opp_boards", "w") as f:
+            f.write(repr(self.opp_boards))
         #print("Saving states ...")
 
     def __init__(self):
-        # Read current weights
-        self.train()
-
-    def train(self):
-        if not os.path.isfile("boards"):
-            print("No previous game found")
-            return
+        # Get preexisting weights
         if os.path.isfile("weights"):
             print("Got weights from disk")
             with open("weights") as f:
                 data = eval(f.read())
             self.NN.weightsList1 = np.array(data[0])
             self.NN.weightsList2 = np.array(data[1])
+        self.train()
+
+    def train(self):
+        # Check for previous games
+        if not os.path.isfile("boards"):
+            print("No previous game found")
+            return
+
         print("Training NN ...")
-        # Read training data
+
+        # Train on p1's boards
         with open("boards") as f:
             inputs = eval(f.read())
         with open("winner.txt") as f:
             winner = f.read()
         output = 1 if winner is "player1" else 0
-        labeled_data = zip(np.array(inputs), np.array([output]))
+        self.NN.train(np.array(inputs),
+                      np.array([output]*len(inputs)))
+        output = (output + 1) % 2
+
+        # Train on p2's boards
+        with open("opp_boards") as f:
+            inputs = eval(f.read())
+        self.NN.train(np.array(inputs),
+                      np.array([output]*len(inputs)))
         weights = (self.NN.weightsList1.tolist(),
                    self.NN.weightsList2.tolist())
+
+        #Record new weights
         with open("weights", "w") as f:
             f.write(repr(weights))
             print("Recorded new weights")
