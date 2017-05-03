@@ -72,8 +72,11 @@ class RandomBot:
         with open("winner.txt") as f:
             winner = f.read()
         output = 1 if winner is "player1" else 0
+
+        iters = 100
         self.NN.train(np.array(inputs),
-                      np.array([[output]]*len(inputs)))
+                      np.array([[output]]*len(inputs)),
+                      iterations = iters)
         output = (output + 1) % 2
 
         # Train on p2's boards
