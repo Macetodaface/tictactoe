@@ -71,17 +71,20 @@ class RandomBot:
         print(winner)
         if winner == "nobody":
             print("last game tied")
-            return
-
-        output = 0 if winner == "player1" else 1
-        print(output)
+            output = .5
+        elif winner == "player1":
+            output = 0
+        else:
+            output = 1
         iters = 100
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
                       iterations=iters)
 
         # Train on p2's boards
-        output = (output + 1) % 2
+        if output == 1 or output == 0:
+            output = (output + 1) % 2
+
         with open("opp_boards") as f:
             inputs = eval(f.read())
         self.NN.train(np.array(inputs),
@@ -91,6 +94,7 @@ class RandomBot:
                    self.NN.weightsList2.tolist())
 
         # Record new weights
-        with open("weights", "w") as f:
-            f.write(repr(weights))
-            print("Recorded new weights")
+        if(self.log_data):
+            with open("weights", "w") as f:
+                f.write(repr(weights))
+                print("Recorded new weights")
