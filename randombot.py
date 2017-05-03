@@ -9,7 +9,7 @@ class RandomBot:
 
     boards = []
     opp_boards = []
-    structure = {"num_inputs": 90, 'num_hidden': 1, 'num_outputs': 1}
+    structure = {"num_inputs": 90, 'num_hidden': 10, 'num_outputs': 1}
     learning_rate = .2
     NN = NeuralNet(structure, learning_rate)
 
@@ -43,8 +43,6 @@ class RandomBot:
 
     def __init__(self, log_data=True):
         self.log_data = log_data
-        if log_data:
-            print("Data will be saved")
         # Get preexisting weight
         if os.path.isfile("weights"):
             print("Got weights from disk")
@@ -52,7 +50,9 @@ class RandomBot:
                 data = eval(f.read())
             self.NN.weightsList1 = np.array(data[0])
             self.NN.weightsList2 = np.array(data[1])
-        self.train()
+        if log_data:
+            print("Data will be saved")
+            self.train()
 
     def train(self):
         # Check for previous games
@@ -70,13 +70,14 @@ class RandomBot:
         print("winner was")
         print(winner)
         if winner == "nobody":
-            print("last game tied")
+            if self.log_data:
+                print("tie game")
             output = .5
         elif winner == "player1":
             output = 0
         else:
             output = 1
-        iters = 100
+        iters = 10
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
                       iterations=iters)
@@ -94,7 +95,6 @@ class RandomBot:
                    self.NN.weightsList2.tolist())
 
         # Record new weights
-        if(self.log_data):
-            with open("weights", "w") as f:
-                f.write(repr(weights))
-                print("Recorded new weights")
+        with open("weights", "w") as f:
+            f.write(repr(weights))
+            print("Recorded new weights")
