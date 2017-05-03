@@ -84,7 +84,7 @@ class RandomBot:
             inputs = eval(f.read())
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
-                      iterations = 100)
+                      iterations = iters)
         weights = (self.NN.weightsList1.tolist(),
                    self.NN.weightsList2.tolist())
 
