@@ -37,7 +37,9 @@ class RandomBot:
         self.macroboards.append(deepcopy(pos.macroboard))
         self.opp_boards.append(deepcopy(best_pos.board))
         self.opp_macroboards.append(deepcopy(best_pos.macroboard))
-        self.save_data()
+        if(self.log_data):
+            print("logging")
+            self.save_data()
         return best_move
 
     def save_data(self):
@@ -48,7 +50,8 @@ class RandomBot:
             f.write(repr(self.opp_boards))
         #print("Saving states ...")
 
-    def __init__(self):
+    def __init__(self,log_data=True):
+        self.log_data=log_data
         # Get preexisting weights
         if os.path.isfile("weights"):
             print("Got weights from disk")
