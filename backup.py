@@ -9,7 +9,7 @@ class RandomBot:
 
     boards = []
     opp_boards = []
-    structure = {"num_inputs": 9, 'num_hidden': 2, 'num_outputs': 1}
+    structure = {"num_inputs": 9, 'num_hidden': 1, 'num_outputs': 1}
     learning_rate = 0.05
     NN = NeuralNet(structure, learning_rate)
 
@@ -26,31 +26,34 @@ class RandomBot:
 
     def get_max(self,n,myid,state,orig_move):
         #print(state.macroboard)
-        # print(len(state.legal_moves()))
+        #print(len(state.legal_moves()))
         lmoves = state.legal_moves()
         if len(lmoves) > 9:
             n-=1
-        if n<=0 or len(lmoves)==0:
+        if n<=0:
             return(self.forward_score(state.macroboard,myid),orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[]
-            new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
+            for move in lmoves:
+                new_states.append((deepcopy(state),move[0],move[1]))
             for new_state in new_states:
                 new_state[0].make_move(new_state[1],new_state[2],myid)
             results = [self.get_min(n-1,myid%2+1,new_state[0],orig_move) for new_state in new_states]
             return max(results)
 
     def get_min(self,n,myid,state,orig_move):
-        # print(len(state.legal_moves()))
+        #print(len(state.legal_moves()))
         lmoves = state.legal_moves()
         if len(lmoves) > 9:
             n-=1
-        if n<=0 or len(lmoves)==0:
+        if n<=0:
             return(self.forward_score(state.macroboard,myid),orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
-            new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
+            new_states=[]
+            for move in lmoves:
+                new_states.append((deepcopy(state),move[0],move[1]))
             for new_state in new_states:
                 new_state[0].make_move(new_state[1],new_state[2],myid)
             results = [self.get_max(n-1,myid%2+1,new_state[0],orig_move) for new_state in new_states]
@@ -160,10 +163,10 @@ class RandomBot:
         print("winner was")
         print(winner)
         if winner == "nobody":
-            print("tie game")
+            if self.log_data:
+                print("tie game")
             output = .5
-        return
-        if winner == "player1":
+        elif winner == "player1":
             output = 0
         else:
             output = 1
