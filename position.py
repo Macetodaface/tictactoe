@@ -22,7 +22,7 @@ class Position:
 
     def make_move(self, x, y, pid):
         mb_i = 3*(y%3)+(x%3)
-        self.macroboard[mb_i] = self.get_winner(mb_i*9)
+        self.macroboard[mb_i] = self.get_winner(mb_i)
 
         mbx, mby = x/3, y/3
         if self.macroboard[3*mby+mbx] == 0:
@@ -30,16 +30,17 @@ class Position:
         self.macroboard[3*mby+mbx] = -1
         self.board[9*y+x] = pid
 
-    def get_winner(self, startIndex):
+    def get_winner(self, mb_i):
+        start_index = (mb_i/3)*27 + (mb_i % 3)*3
         board = self.board
         # check rows/columns
         for i in range(3):
-            row_value = board[i*3 + startIndex]
-            col_value = board[i + startIndex]
+            row_value = board[i*9+start_index]
+            col_value = board[i+start_index]
             for j in range(3):
-                if board[i*3+j+startIndex] != row_value:
+                if board[i*9+j+start_index] != row_value:
                     row_value = -1
-                if board[j*3+i+startIndex] != col_value:
+                if board[j*9+i+start_index] != col_value:
                     col_value = -1
             if row_value > 0:
                 return row_value
@@ -50,9 +51,9 @@ class Position:
         d1_val = board[0]
         d2_val = board[2]
         for i in [1, 2]:
-            if board[i*3+j+startIndex] != d1_val:
+            if board[i*10+start_index] != d1_val:
                 d1_val = -1
-            if board[i*3+2-j + startIndex] != d2_val:
+            if board[i*8+2+start_index] != d2_val:
                 d2_val = -1
         if d2_val > 0:
             return d2_val
@@ -66,4 +67,4 @@ class Position:
 
     def get_macroboard(self):
         return ''.join(self.macroboard, ',')
-    
+
