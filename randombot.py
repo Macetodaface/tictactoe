@@ -22,14 +22,17 @@ class RandomBot:
 
             new_pos.make_move(x, y, self.myid)
 
-            new_score = self.NN.forward_propagate(new_pos.board)
+            new_score = self.NN.forward_propagate(
+                self.translate_macroboard(deepcopy(new_pos.board)+deepcopy(new_pos.macroboard),self.myid))
             if new_score > max_score:
                 max_score = new_score
                 best_move = (x, y)
                 best_pos = new_pos
 
-        self.boards.append(pos.board + pos.macroboard)
-        self.opp_boards.append(deepcopy(best_pos.board + best_pos.macroboard))
+        self.boards.append(self.translate_macroboard(deepcopy(pos.board)+deepcopy(pos.macroboard),self.myid))
+        self.opp_boards.append(
+            self.translate_macroboard(deepcopy(best_pos.board)+ deepcopy(best_pos.macroboard),2-self.myid)
+        )
         if self.log_data:
             self.save_data()
         return best_move
@@ -53,6 +56,25 @@ class RandomBot:
         if log_data:
             print("Data will be saved")
             self.train()
+
+    def translate_macroboard(self,macroboard,myid):
+        new_p1_value= 2*(1-myid)
+        new_p2_value= 2*myid
+        # for value in macroboard:
+        macroboard = [new_p1_value if value==1 else new_p2_value if value==2 else 1 for value in macroboard]
+        # macroboard[macroboard==1]=new_p1_value
+        # macroboard[macroboard==2]=new_p2_value
+        # macroboard[macroboard==0]=1
+        # macroboard[macroboard==-1]=42
+        return macroboard
+
+    def translate_board(self,board,myid):
+        new_p1_value= 2*(1-myid)
+        new_p2_value= 2*myid
+        board[board==1]=new_p1_value
+        board[board==2]=new_p2_value
+        board[board==0]=1
+        return board
 
     def train(self):
         # Check for previous games
