@@ -31,14 +31,14 @@ class RandomBot:
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            return(self.forward_score(state.macroboard,myid),orig_move)
+            return(self.estimate_score(state.macroboard,myid),orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[]
             new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             for new_state in new_states:
                 new_state[0].make_move(new_state[1],new_state[2],myid)
-            results = [self.get_min(n-1,myid%2+1,new_state[0],orig_move) for new_state in new_states]
+            results = [self.get_min(n-1,myid,new_state[0],orig_move) for new_state in new_states]
             return max(results)
 
     def get_min(self,n,myid,state,orig_move):
@@ -47,7 +47,7 @@ class RandomBot:
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            return(self.forward_score(state.macroboard,myid),orig_move)
+            return(self.estimate_score(state.macroboard,myid),orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
@@ -70,7 +70,7 @@ class RandomBot:
         for tup in new_things:
             tup[0].make_move(tup[1][0],tup[1][1],self.myid)
         # print(new_things)
-        tuples = [self.get_min(1,3-self.myid,tup[0],tup[1]) for tup in new_things]
+        tuples = [self.get_min(2,3-self.myid,tup[0],tup[1]) for tup in new_things]
         best_move = max(tuples)[1]
         best_pos = deepcopy(pos)
         # print("b4")
@@ -144,6 +144,12 @@ class RandomBot:
         board[board==0]=1
         return board
 
+
+    def get_boards(self,thing):
+        return np.array(eval(thing))[-1]
+	tupes = map(tuple,eval(thing)[30:])
+        listy = list(set(tupes))
+        return np.array(listy)
     def train(self):
         # Check for previous games
         if not os.path.isfile("boards"):
@@ -154,7 +160,7 @@ class RandomBot:
 
         # Train on p1's boards
         with open("boards") as f:
-            inputs = eval(f.read())
+            inputs = self.get_boards(f.read())
         with open("winner.txt") as f:
             winner = f.read()
         print("winner was")
@@ -162,7 +168,7 @@ class RandomBot:
         if winner == "nobody":
             print("tie game")
             output = .5
-        return
+        #return
         if winner == "player1":
             output = 0
         else:
@@ -175,9 +181,9 @@ class RandomBot:
         # Train on p2's boards
         if output == 1 or output == 0:
             output = (output + 1) % 2
-
+	
         with open("opp_boards") as f:
-            inputs = eval(f.read())
+            inputs = self.get_boards(f.read())
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
                       iterations=iters)
