@@ -19,6 +19,49 @@ class RandomBot:
         return sum(self.translate_macroboard(deepcopy(board),myid))
         # return sum(board)
 
+    def estimate_score_2(self, macroboard, board, myid):
+        sum = 0#self.estimate_score(macroboard, myid)*16
+        for mb_i in range(9):
+            sum -= self.estimate_score_2_help(
+                self.translate_macroboard(board, myid), mb_i)
+        return sum
+
+    def estimate_score_2_help(self, board, mb_i):
+        if len(board) < 4:
+            print(board)
+        sum = 0
+        start_index = (mb_i/3)*27 + (mb_i % 3)*3
+        # check rows/columns
+        for i in range(3):
+            row_val = board[i*9+start_index]
+            col_val = board[i+start_index]
+            for j in [1,2,0]:
+                new_row_val = board[i*9+j+start_index]
+                if new_row_val == row_val:
+                    sum += 0 if row_val == 1 else -1 if row_val == 2 else 1
+                row_val = new_row_val
+                new_col_val = board[j*9+i+start_index]
+                if new_col_val == col_val:
+                    sum += 0 if col_val == 1 else -1 if col_val == 2 else 1
+                col_val = new_col_val
+
+        # Check diagonals
+        d1_val = board[start_index]
+        d2_val = board[2+start_index]
+        for i in [1, 2, 0]:
+            new_d1_val = board[i*10+start_index]
+            if new_d1_val == d1_val:
+                sum += 0 if d1_val == 1 else -1 if d1_val == 2 else 1
+            d1_val = new_d1_val
+            new_d2_val = board[i*8+2+start_index]
+            if new_d2_val == d2_val:
+                sum += 0 if d2_val == 1 else -1 if d2_val == 2 else 1
+            d2_val = new_d2_val
+
+        # print("zero")
+        #print(sum, board, mb_i)
+        return sum
+
     def forward_score(self,board,myid):
         # print(board)
         # print(self.NN.forward_propagate(self.translate_macroboard(deepcopy(board),myid)))
@@ -31,7 +74,9 @@ class RandomBot:
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            return(self.estimate_score(state.macroboard,myid),orig_move)
+            #return(self.estimate_score(state.macroboard,myid),orig_move)
+            return(self.estimate_score_2(state.macroboard, state.board,
+                                      myid), orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[]
@@ -47,7 +92,9 @@ class RandomBot:
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            return(self.estimate_score(state.macroboard,myid),orig_move)
+            #return(self.estimate_score(state.macroboard,myid),orig_move)
+            return (self.estimate_score_2(state.macroboard, state.board,
+                                          myid), orig_move)
         else:
             # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
