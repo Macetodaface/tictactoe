@@ -14,6 +14,9 @@ class RandomBot:
     NN = NeuralNet(structure, learning_rate)
 
 
+    def evaluate_state(self,board,myid):
+        return self.forward_score(board,myid)
+
     def estimate_score(self,board,myid):
         # print(board)
         return sum(self.translate_macroboard(deepcopy(board),myid))
@@ -57,29 +60,19 @@ class RandomBot:
             if new_d2_val == d2_val:
                 sum += 0 if d2_val == 1 else -1 if d2_val == 2 else 1
             d2_val = new_d2_val
-
-        # print("zero")
-        #print(sum, board, mb_i)
         return sum
 
     def forward_score(self,board,myid):
-        # print(board)
-        # print(self.NN.forward_propagate(self.translate_macroboard(deepcopy(board),myid)))
         return self.NN.forward_propagate(self.translate_macroboard(deepcopy(board),myid))
 
     def get_max(self,n,myid,state,orig_move):
-        #print(state.macroboard)
-        # print(len(state.legal_moves()))
         lmoves = state.legal_moves()
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            #return(self.estimate_score(state.macroboard,myid),orig_move)
-            return(self.estimate_score_2(state.macroboard, state.board,
+            return(self.evaluate_state(state.macroboard, 
                                       myid), orig_move)
         else:
-            # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
-            new_states=[]
             new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             for new_state in new_states:
                 new_state[0].make_move(new_state[1],new_state[2],myid)
@@ -87,16 +80,13 @@ class RandomBot:
             return max(results)
 
     def get_min(self,n,myid,state,orig_move):
-        # print(len(state.legal_moves()))
         lmoves = state.legal_moves()
         if len(lmoves) > 9:
             n-=1
         if n<=0 or len(lmoves)==0:
-            #return(self.estimate_score(state.macroboard,myid),orig_move)
-            return (self.estimate_score_2(state.macroboard, state.board,
+            return (self.evaluate_state(state.macroboard,
                                           myid), orig_move)
         else:
-            # new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             new_states=[(deepcopy(state),move[0],move[1]) for move in lmoves]
             for new_state in new_states:
                 new_state[0].make_move(new_state[1],new_state[2],myid)
@@ -111,39 +101,13 @@ class RandomBot:
         lmoves = pos.legal_moves()
         max_score = 0
 
-
-        # best_move = self.get_max(1,self.myid,)
         new_things = [(deepcopy(pos),move) for move in lmoves]
         for tup in new_things:
             tup[0].make_move(tup[1][0],tup[1][1],self.myid)
-        # print(new_things)
         tuples = [self.get_min(2,3-self.myid,tup[0],tup[1]) for tup in new_things]
         best_move = max(tuples)[1]
         best_pos = deepcopy(pos)
-        # print("b4")
-        # print(best_pos.macroboard)
         best_pos.make_move(best_move[0],best_move[1],self.myid)
-        # print(best_pos.macroboard)
-        # for (x, y) in lmoves:
-
-        #     new_pos = deepcopy(pos)
-
-        #     new_pos.make_move(x, y, self.myid)
-
-        #     # new_score = self.NN.forward_propagate(
-        #         # self.translate_macroboard(deepcopy(new_pos.board)+deepcopy(new_pos.macroboard),self.myid))
-        #     new_score = self.NN.forward_propagate(
-        #         self.translate_macroboard(deepcopy(new_pos.macroboard),self.myid))
-
-        #     if new_score > max_score:
-        #         max_score = new_score
-        #         best_move = (x, y)
-        #         best_pos = new_pos
-
-        # self.boards.append(self.translate_macroboard(deepcopy(pos.board)+deepcopy(pos.macroboard),self.myid))
-        # self.opp_boards.append(
-        #     self.translate_macroboard(deepcopy(best_pos.board)+ deepcopy(best_pos.macroboard),2-self.myid)
-        # )
         self.boards.append(self.translate_macroboard(deepcopy(pos.macroboard),self.myid))
         self.opp_boards.append(
             self.translate_macroboard(deepcopy(best_pos.macroboard),self.myid%2+1)
@@ -155,9 +119,9 @@ class RandomBot:
     def save_data(self):
         # Write data to disk
         with open("boards", "w") as f:
-            f.write(repr(self.boards))
+            f.write(repr([self.boards[-1]]))
         with open("opp_boards", "w") as f:
-            f.write(repr(self.opp_boards))
+            f.write(repr([self.opp_boards[-1]]))
 
     def __init__(self, log_data=True):
         self.log_data = log_data
@@ -217,9 +181,9 @@ class RandomBot:
             output = .5
         #return
         if winner == "player1":
-            output = 0
-        else:
             output = 1
+        else:
+            output = 0
         iters = 5
         self.NN.train(np.array(inputs),
                       np.array([[output]]*len(inputs)),
