@@ -38,11 +38,7 @@ class Position:
             self.macroboard = [-1 if n == 0 else n for n in self.macroboard]
         
         if winner != 0:
-            # print("nonzero!!!!!")
             self.macroboard[mb_old] = winner
-
-            
-        #print("after", self.macroboard)
 
     def get_winner(self, mb_i):
         start_index = (mb_i/3)*27 + (mb_i % 3)*3
@@ -73,7 +69,6 @@ class Position:
             return d2_val
         if d1_val > 0:
             return d1_val
-        # print("zero")
         return 0
 
     def get_board(self):

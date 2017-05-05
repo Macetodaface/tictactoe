@@ -25,14 +25,14 @@ def parse_command(instr, bot, pos):
 if __name__ == '__main__':
     import sys
     from position import Position
-    from randombot import RandomBot
+    from loserbot import LoserBot
 
     pos = Position()
     args = sys.argv
     if len(args)>1 and args[1]=="-nolog":
-        bot=RandomBot(log_data=False)
+        bot=LoserBot(log_data=False)
     else:
-        bot=RandomBot()
+        bot=LoserBot()
 
     while True:
         try:
